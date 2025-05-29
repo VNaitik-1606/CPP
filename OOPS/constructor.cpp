@@ -241,7 +241,7 @@ using namespace std;
 //         Student(string name, double cgpa){
 //             this-> name = name;
 //             cgpaPtr = new double;
-//             *cgpaPtr = cgpa;
+            // *cgpaPtr = cgpa;
 //         }
 
 //         Student(Student &obj) {
