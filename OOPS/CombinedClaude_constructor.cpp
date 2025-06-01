@@ -120,13 +120,6 @@ C++ supports three main types of constructors:
    - Used for object-to-object copying
 */
 
-// Types of constructor:
-    // Non-Parameterized 
-    // Parameterized 
-    // Copy
-
-// --------------------------------------------------
-
 // ==============================================================================
 // NON-PARAMETERIZED CONSTRUCTOR EXAMPLE
 // ==============================================================================
@@ -161,7 +154,7 @@ C++ supports three main types of constructors:
 //         double salary;  // Private member - encapsulated data
     
 //     public:
-//         // Parameterized constructor - takes 4 arguments for complete initialization
+//        // Parameterized constructor - takes 4 arguments for complete initialization
 //         Teacher(string n, string d, string s, double sal) {
 //             name = n;      // Initialize name with parameter 'n'
 //             dept = d;      // Initialize department with parameter 'd'
@@ -218,8 +211,6 @@ Example:
 */
 
 // In a single class there can be multiple constructors(differ in type or maybe number of args). This is k/n constructor_overloading 
-
-// --------------------------------------------------
 
 /*
 ==============================================================================
@@ -392,59 +383,299 @@ The following Student class demonstrates SHALLOW COPY problem:
 - When destructor is called, same memory gets deleted twice (undefined behavior)
 - Changing CGPA through one object affects the other object
 */
+#include <bits/stdc++.h>
+using namespace std;
 
-class Student{
+/*
+===================================================
+            Example - 1 Simpler One
+===================================================
+*/
 
-    public:
-        string name;       // Regular member variable
-        double *cgpaPtr;   // Pointer to dynamically allocated memory
+#include <iostream>
+using namespace std;
 
-        // Parameterized constructor - creates object with dynamic memory allocation
-        Student(string name, double cgpa){
-            this-> name = name;
-            cgpaPtr = new double;    // Allocate memory on heap for CGPA
-            *cgpaPtr = cgpa;         // Store CGPA value in allocated memory
-        }
-
-        // SHALLOW COPY constructor - PROBLEMATIC IMPLEMENTATION
-        Student(Student &obj) {
-            this->name = obj.name;        // Copy name (safe - no dynamic memory)
-            this->cgpaPtr = obj.cgpaPtr;  // Copy pointer address only! DANGEROUS!
-            // Now both objects point to the same memory location
-            // This creates sharing problems and double-deletion issues
-        }
-
-        // Method to display student information
-        void getInfo(){
-            cout << "name: " << name << endl;
-            cout << "cgpa: " << *cgpaPtr << endl;  // Dereference pointer to get value
-        }
+// Class with SHALLOW COPY (problematic)
+class ShallowCopy {
+public:
+    int* data;
+    
+    ShallowCopy(int value) {
+        data = new int(value);
+        cout << "Created object with value: " << *data << endl;
+    }
+    
+    // Default copy constructor does shallow copy
+    // ShallowCopy(const ShallowCopy& other) { data = other.data; }
+    
+    ~ShallowCopy() {
+        cout << "Deleting value: " << *data << endl;
+        delete data;
+    }
+    
+    void display() {
+        cout << "Value: " << *data << ", Address: " << data << endl;
+    }
 };
 
-int main(int argc, char const *argv[])
-{
-    // Create original student object with dynamic memory allocation
-    Student s1("rahul kumar", 8.9);
-
-    // Create copy using copy constructor (shallow copy - problematic!)
-    Student s2(s1);  // Both s1 and s2 now point to same CGPA memory location
+// Class with DEEP COPY (safe)
+class DeepCopy {
+public:
+    int* data;
     
-    s2.getInfo();    // Display copied student's information
-    
-    /*
-    PROBLEM WITH THIS IMPLEMENTATION:
-    1. Both s1.cgpaPtr and s2.cgpaPtr point to the same memory address
-    2. If you modify *s1.cgpaPtr, it will also change *s2.cgpaPtr
-    3. When program ends, destructors will try to delete the same memory twice
-    4. This leads to undefined behavior and potential program crash
-    
-    SOLUTION: Implement DEEP COPY constructor:
-    Student(Student &obj) {
-        this->name = obj.name;
-        cgpaPtr = new double;           // Allocate NEW memory for this object
-        *cgpaPtr = *(obj.cgpaPtr);      // Copy the VALUE, not the address
+    DeepCopy(int value) {
+        data = new int(value);
+        cout << "Created object with value: " << *data << endl;
     }
-    */
+    
+    // Custom copy constructor - DEEP COPY
+    DeepCopy(const DeepCopy& other) {
+        data = new int(*other.data);  // Create NEW memory and copy value
+        cout << "Deep copied value: " << *data << endl;
+    }
+    
+    ~DeepCopy() {
+        cout << "Deleting value: " << *data << endl;
+        delete data;
+    }
+    
+    void display() {
+        cout << "Value: " << *data << ", Address: " << data << endl;
+    }
+};
+
+int main() {
+    cout << "=== SHALLOW COPY PROBLEM ===" << endl;
+    {
+        ShallowCopy obj1(10);
+        obj1.display();
+        
+        ShallowCopy obj2 = obj1;  // Shallow copy!
+        obj2.display();
+        
+        cout << "Both point to SAME memory!" << endl;
+        // When this block ends, BOTH destructors try to delete same memory = CRASH!
+    }
+    
+    cout << "\n=== DEEP COPY SOLUTION ===" << endl;
+    {
+        DeepCopy obj1(20);
+        obj1.display();
+        
+        DeepCopy obj2 = obj1;  // Deep copy!
+        obj2.display();
+        
+        cout << "Each has its OWN memory - Safe!" << endl;
+        
+        *obj1.data = 99;  // Change obj1
+        cout << "After changing obj1:" << endl;
+        obj1.display();
+        obj2.display();  // obj2 unchanged!
+    }
     
     return 0;
 }
+
+/*
+SIMPLE EXPLANATION:
+
+SHALLOW COPY:
+- Copies the pointer address
+- Both objects point to SAME memory
+- Deleting one affects the other = CRASH
+
+DEEP COPY:  
+- Creates NEW memory
+- Copies the actual VALUE
+- Each object independent = SAFE
+
+RULE: If your class has pointers, write a copy constructor!
+*/
+
+
+
+
+
+
+
+
+
+/*
+===================================================
+            Example - 2 A little Complex
+===================================================
+*/
+
+class ShallowCopyExample {
+private:
+    char* data;
+    int size;
+
+public:
+    // Constructor
+    ShallowCopyExample(const char* str) {
+        size = strlen(str);
+        data = new char[size + 1];
+        strcpy(data, str);
+        cout << "Constructor: Created object with data: " << data << endl;
+    }
+
+    // Default copy constructor (performs shallow copy)
+    // This is automatically generated by compiler if not explicitly defined
+    // It copies member variables directly without deep copying pointer contents
+
+    // Destructor
+    ~ShallowCopyExample() {
+        cout << "Destructor: Deleting data: " << data << endl;
+        delete[] data;
+    }
+
+    // Display function
+    void display() const {
+        cout << "Data: " << data << ", Address: " << (void*)data << endl;
+    }
+
+    // Modify data
+    void modifyData(const char* newData) {
+        delete[] data;
+        size = strlen(newData);
+        data = new char[size + 1];
+        strcpy(data, newData);
+    }
+};
+
+class DeepCopyExample {
+private:
+    char* data;
+    int size;
+
+public:
+    // Constructor
+    DeepCopyExample(const char* str) {
+        size = strlen(str);
+        data = new char[size + 1];
+        strcpy(data, str);
+        cout << "Constructor: Created object with data: " << data << endl;
+    }
+
+    // Custom copy constructor (performs deep copy)
+    DeepCopyExample(const DeepCopyExample& other) {
+        size = other.size;
+        data = new char[size + 1];  // Allocate new memory
+        strcpy(data, other.data);   // Copy the actual data
+        cout << "Copy Constructor: Deep copied data: " << data << endl;
+    }
+
+    // Assignment operator (deep copy)
+    DeepCopyExample& operator=(const DeepCopyExample& other) {
+        if (this != &other) {  // Self-assignment check
+            delete[] data;     // Free existing memory
+            
+            size = other.size;
+            data = new char[size + 1];  // Allocate new memory
+            strcpy(data, other.data);   // Copy the actual data
+            cout << "Assignment Operator: Deep copied data: " << data << endl;
+        }
+        return *this;
+    }
+
+    // Destructor
+    ~DeepCopyExample() {
+        cout << "Destructor: Deleting data: " << data << endl;
+        delete[] data;
+    }
+
+    // Display function
+    void display() const {
+        cout << "Data: " << data << ", Address: " << (void*)data << endl;
+    }
+
+    // Modify data
+    void modifyData(const char* newData) {
+        delete[] data;
+        size = strlen(newData);
+        data = new char[size + 1];
+        strcpy(data, newData);
+    }
+};
+
+int main() {
+    cout << "=== SHALLOW COPY DEMONSTRATION ===" << endl;
+    
+    {
+        ShallowCopyExample obj1("Hello");
+        obj1.display();
+        
+        // Shallow copy - both objects share the same memory
+        ShallowCopyExample obj2 = obj1;  // Copy constructor called
+        obj2.display();
+        
+        cout << "Notice: Both objects point to the same memory address!" << endl;
+        
+        // This will cause problems when destructors are called
+        // Both objects will try to delete the same memory location
+        cout << "When scope ends, both destructors will try to delete same memory..." << endl;
+    }
+    // CRASH or undefined behavior occurs here due to double deletion
+    
+    cout << "\n=== DEEP COPY DEMONSTRATION ===" << endl;
+    
+    {
+        DeepCopyExample obj1("World");
+        obj1.display();
+        
+        // Deep copy - each object has its own memory
+        DeepCopyExample obj2 = obj1;  // Copy constructor called
+        obj2.display();
+        
+        cout << "Notice: Objects have different memory addresses!" << endl;
+        
+        // Modify one object
+        obj1.modifyData("Modified");
+        cout << "After modifying obj1:" << endl;
+        cout << "obj1: ";
+        obj1.display();
+        cout << "obj2: ";
+        obj2.display();
+        
+        cout << "obj2 remains unchanged - they are truly independent!" << endl;
+        
+        // Assignment operator test
+        DeepCopyExample obj3("Test");
+        obj3 = obj1;  // Assignment operator called
+        cout << "After assignment (obj3 = obj1):" << endl;
+        obj3.display();
+    }
+    // Safe destruction - each object deletes its own memory
+    
+    return 0;
+}
+
+/*
+KEY DIFFERENCES:
+
+SHALLOW COPY:
+- Copies member variables directly
+- For pointers, only the address is copied (not the data)
+- Multiple objects share the same memory location
+- Leads to problems: double deletion, dangling pointers
+- Default behavior of compiler-generated copy constructor
+
+DEEP COPY:
+- Creates new memory for pointer members
+- Copies the actual data, not just addresses
+- Each object has independent memory
+- Safe destruction and modification
+- Must be explicitly implemented
+
+WHEN TO USE DEEP COPY:
+- When your class manages dynamic memory (pointers)
+- When you want true independence between copied objects
+- Following the Rule of Three/Five in C++
+
+RULE OF THREE:
+If a class needs a custom destructor, it probably needs:
+1. Custom destructor
+2. Custom copy constructor
+3. Custom assignment operator
+*/
