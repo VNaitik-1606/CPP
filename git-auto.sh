@@ -1,6 +1,3 @@
-
-#!/bin/bash
-
 if ! grep -qxF ".vscode/" .gitignore; then
   echo ".vscode/" >> .gitignore
   git add .gitignore
