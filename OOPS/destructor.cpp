@@ -9,25 +9,35 @@ PROPERTIES:
 - 
 
 */
-class DestructorExample{
-    public:
-        string name;
-        double *cgpaPtr;
+#include <iostream>
+#include <string>
+using namespace std;
 
-        Student(string name, double cgpa){
-            this->name = name;
-            cgpaPtr = new double;
-            *cgpaPtr = cgpa;
-        }
+class Student {
+public:
+    string name;
+    double* cgpaPtr;
 
-        // DESTRUCTOR
+    Student(string name, double cgpa) {
+        this->name = name;
+        cgpaPtr = new double;
+        *cgpaPtr = cgpa;
+    }
 
-        ~Student(){
-            cout << "Destructor invoked" << endl;
-        }
+    ~Student() {
+        cout << "Destructor invoked" << endl;
+        delete cgpaPtr;
+        cgpaPtr = nullptr;  // Good practice
+    }
+    
+    void getInfo(){
+        cout << "name: " << name << endl;
+        cout << "cgpa: " << *cgpaPtr << endl;
+    }
 };
 
 int main() {
-
+    Student s1("Naitik Verma", 8.9);
+    s1.getInfo();
     return 0;
 }
