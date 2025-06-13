@@ -1,20 +1,11 @@
-nt main(int argc, char const *argv[])
+n(int argc, char const *argv[])
 // {
-//     int n,a;
-//     cin >> n;
+//     vector<int> vec = {4,5,6};
 
-//     a = 1;
-
-//         for (int i = 0; i < n; i++)
+//     for (int i : vec) // The type of i has have to be the same as the type of vector here it's "int"
 //     {
-//         for (int j = 0; j < i + 1; j++)
-//         {
-//             cout << a;
-//             a++;
-//         }
-
-//         cout << endl;
-//         }
+//         cout << i << endl; // It won't print the index instead it'll print the value at the index.
+//     }
     
 //     return 0;
 // }
